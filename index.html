@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DNA Disease Risk Predictor</title>
+<style>
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; }
+  form { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px 20px; max-width: 760px; }
+  label { display: flex; flex-direction: column; font-size: 14px; gap: 6px; }
+  input { padding: 8px 10px; font-size: 14px; }
+  button { grid-column: 1 / -1; padding: 10px 14px; font-size: 16px; cursor: pointer; }
+  .result { margin-top: 20px; font-size: 18px; }
+  .error { color: #b00020; }
+</style>
+</head>
+<body>
+  <h1>DNA Disease Risk Predictor</h1>
+  <p>Enter the features below and click Predict.</p>
+  <form id="form">
+    <label>GC_Content (%)<input type="number" step="0.01" name="GC_Content" required></label>
+    <label>AT_Content (%)<input type="number" step="0.01" name="AT_Content" required></label>
+    <label>Num_A<input type="number" step="1" name="Num_A" required></label>
+    <label>Num_T<input type="number" step="1" name="Num_T" required></label>
+    <label>Num_C<input type="number" step="1" name="Num_C" required></label>
+    <label>Num_G<input type="number" step="1" name="Num_G" required></label>
+    <label>kmer_3_freq<input type="number" step="0.0001" name="kmer_3_freq" required></label>
+    <label>Mutation_Flag (0/1)<input type="number" step="1" min="0" max="1" name="Mutation_Flag" required></label>
+    <label>Class_Label (0/1/2)<input type="number" step="1" min="0" max="2" name="Class_Label" required></label>
+    <button type="submit">Predict</button>
+  </form>
+  <div id="result" class="result"></div>
+
+<script>
+  const form = document.getElementById('form');
+  const result = document.getElementById('result');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    result.textContent = 'Predicting...';
+    result.className = 'result';
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    for (const k of Object.keys(data)) {
+      data[k] = Number(data[k]);
+    }
+
+    try {
+      const res = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const json = await res.json();
+      result.textContent = `Prediction: ${json.prediction}`;
+    } catch (err) {
+      result.textContent = 'Error: ' + err.message;
+      result.className = 'result error';
+    }
+  });
+</script>
+</body>
+</html>
