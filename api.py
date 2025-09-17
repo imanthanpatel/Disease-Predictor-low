@@ -5,12 +5,18 @@ import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 APP_DIR = Path(__file__).parent
 MODEL_PATH = APP_DIR / "model.joblib"
+FRONTEND_DIST = APP_DIR / "frontend" / "dist"
 
 app = FastAPI(title="DNA Disease Risk API", version="1.0.0")
+
+# Serve frontend build if present
+if FRONTEND_DIST.exists():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
 
 
 class PredictRequest(BaseModel):
@@ -40,6 +46,9 @@ def load_model():
 
 @app.get("/")
 async def root():
+    # Prefer React index.html if build exists; otherwise fallback to plain index.html
+    if FRONTEND_DIST.exists():
+        return FileResponse(FRONTEND_DIST / "index.html")
     index_path = APP_DIR / "index.html"
     if not index_path.exists():
         raise HTTPException(status_code=404, detail="index.html not found")
@@ -64,7 +73,6 @@ async def predict(req: PredictRequest):
     features = blob["features"]
     mappings = blob.get("feature_label_to_int", {})
 
-    # Prepare raw values
     raw_values = [
         req.GC_Content,
         req.AT_Content,
@@ -77,7 +85,6 @@ async def predict(req: PredictRequest):
         req.Class_Label,
     ]
 
-    # Apply label mappings where present
     encoded_values = []
     for col, value in zip(features, raw_values):
         mapping = mappings.get(col)
