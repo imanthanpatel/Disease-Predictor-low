@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+.eggs/
+*.egg
+build/
+dist/
+.python-version
+.venv/
+venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_commit
+
+# Data / Models (large artifacts)
+*.joblib
+*.pkl
+*.h5
+*.onnx
+*.pt
+*.bin
+*.csv.zip
+/data/*.parquet
+/data/*.feather
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / Frontend
+frontend/node_modules/
+frontend/.vite/
+frontend/.next/
+frontend/dist/
+frontend/.cache/
+
+# VSCode / IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Env files
+.env
+.env.*
+
+# Docker
+*.pid
+*.sock

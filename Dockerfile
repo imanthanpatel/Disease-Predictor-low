@@ -27,13 +27,14 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 # Copy backend and data
-COPY . .
+COPY backend ./backend
+COPY data ./data
 
 # Copy built frontend assets
 COPY --from=frontend-builder /frontend/dist /app/frontend/dist
 
-# Pre-train model inside the image (optional)
-RUN python train.py || true
+# Train model inside the image (optional)
+RUN python backend/train.py || true
 
 EXPOSE 8080
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "backend.api:app", "--host", "0.0.0.0", "--port", "8080"]
