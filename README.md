@@ -2,6 +2,8 @@
 
 A web application to predict disease risk based on DNA sequences using a machine learning backend and a modern React frontend.
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=vercel)](https://disease-predictor-low.onrender.com)
+
 ## Key Features & Benefits
 
 - **DNA-based Risk Prediction:** Predicts disease risks from input DNA sequence features.
