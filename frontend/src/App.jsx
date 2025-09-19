@@ -195,10 +195,10 @@ function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="text-2xl font-semibold text-white">{prediction.prediction}</div>
+                <div className="text-2xl font-semibold text-white">Diabetes Risk: {prediction.prediction}</div>
                 {prediction.classes && (
                   <div>
-                    <div className="text-sm text-slate-400 mb-1">Classes</div>
+                    <div className="text-sm text-slate-400 mb-1">Classes of Risk</div>
                     <div className="flex flex-wrap gap-2 justify-center">
                       {prediction.classes.map((c, i) => (
                         <span key={c} className={`inline-flex items-center rounded-full border border-white/10 px-2.5 py-1 text-sm ${prediction.class_index === i ? "bg-blue-600 text-white" : "bg-slate-900/40 text-slate-300"}`}>
