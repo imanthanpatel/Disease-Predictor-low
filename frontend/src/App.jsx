@@ -71,7 +71,7 @@ export default function App() {
       </Routes>
 
       <footer className="py-8 text-center text-slate-500 text-sm border-t border-white/10 mt-12">
-        © 2024 Health Insights. All rights reserved.
+        © 2025 DNA Predictor. All rights reserved.
       </footer>
     </div>
   );
@@ -370,17 +370,6 @@ function HowItWorks() {
             </div>
           </div>
         </div>
-
-        <footer className="border-t border-white/10 mt-16">
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 py-8 flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-sm text-gray-500">© 2024 HealthGenetics. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a className="text-sm text-gray-400 hover:text-white transition-colors" href="#">Terms of Service</a>
-              <a className="text-sm text-gray-400 hover:text-white transition-colors" href="#">Privacy Policy</a>
-              <a className="text-sm text-gray-400 hover:text-white transition-colors" href="#">Contact Us</a>
-            </div>
-          </div>
-        </footer>
       </div>
     </main>
   );
