@@ -7,11 +7,12 @@ and metadata into `backend/`.
 """
 
 import json
+import os
 import joblib
 import pandas as pd
 from pathlib import Path
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, classification_report
 from typing import Dict, Any
 
@@ -82,11 +83,50 @@ def train_and_save_model() -> None:
     y = df[TARGET_COLUMN]
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42
+        X, y, test_size=0.3, random_state=42, stratify=y
     )
 
-    model = RandomForestClassifier(n_estimators=200, random_state=42)
-    model.fit(X_train, y_train)
+    # Choose algorithm
+    algo = os.environ.get("ALGO", "rf")  # rf | hgb
+    if algo == "hgb":
+        # HistGradientBoosting handles missing values and is strong on tabular data
+        base_model = HistGradientBoostingClassifier(
+            learning_rate=0.06,
+            max_depth=None,
+            max_iter=300,
+            l2_regularization=0.0,
+            random_state=42,
+        )
+        use_grid = False  # keep simple for HGB baseline
+    else:
+        # Base RandomForest with class weighting to mitigate imbalance
+        base_model = RandomForestClassifier(
+            n_estimators=400,
+            random_state=42,
+            class_weight="balanced",
+            n_jobs=-1,
+        )
+        use_grid = os.environ.get("USE_GRID", "0") in {"1", "true", "True"}
+
+    if use_grid:
+        param_grid = {
+            "n_estimators": [200, 400],
+            "max_depth": [None, 10, 20],
+            "max_features": ["sqrt", "log2"],
+            "min_samples_leaf": [1, 2],
+        }
+        grid = GridSearchCV(
+            estimator=base_model,
+            param_grid=param_grid,
+            scoring="accuracy",
+            cv=3,
+            n_jobs=-1,
+            verbose=0,
+        )
+        grid.fit(X_train, y_train)
+        model = grid.best_estimator_
+    else:
+        model = base_model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)

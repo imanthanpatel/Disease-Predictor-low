@@ -1,0 +1,56 @@
+{
+  "accuracy": 0.37,
+  "classification_report": {
+    "High": {
+      "precision": 0.40707964601769914,
+      "recall": 0.45544554455445546,
+      "f1-score": 0.42990654205607476,
+      "support": 101.0
+    },
+    "Low": {
+      "precision": 0.375,
+      "recall": 0.375,
+      "f1-score": 0.375,
+      "support": 104.0
+    },
+    "Medium": {
+      "precision": 0.3132530120481928,
+      "recall": 0.2736842105263158,
+      "f1-score": 0.29213483146067415,
+      "support": 95.0
+    },
+    "accuracy": 0.37,
+    "macro avg": {
+      "precision": 0.365110886021964,
+      "recall": 0.36804325169359037,
+      "f1-score": 0.36568045783891634,
+      "support": 300.0
+    },
+    "weighted avg": {
+      "precision": 0.36624693464121977,
+      "recall": 0.37,
+      "f1-score": 0.367244565788092,
+      "support": 300.0
+    }
+  },
+  "features": [
+    "GC_Content",
+    "AT_Content",
+    "Num_A",
+    "Num_T",
+    "Num_C",
+    "Num_G",
+    "kmer_3_freq",
+    "Mutation_Flag",
+    "Class_Label"
+  ],
+  "target": "Disease_Risk",
+  "feature_label_to_int": {
+    "Class_Label": {
+      "Bacteria": 0,
+      "Human": 1,
+      "Plant": 2,
+      "Virus": 3
+    }
+  }
+}

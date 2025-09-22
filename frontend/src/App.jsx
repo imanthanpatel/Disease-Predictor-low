@@ -10,7 +10,7 @@ const initialValues = {
   Num_G: "",
   kmer_3_freq: "",
   Mutation_Flag: "0",
-  Class_Label: "1",
+  Class_Label: "",
 };
 
 export default function App() {
@@ -83,11 +83,21 @@ function Dashboard() {
   const [error, setError] = useState("");
   const [prediction, setPrediction] = useState(null);
   const [meta, setMeta] = useState(null);
+  const [classOptions, setClassOptions] = useState([]);
   const apiBase = useMemo(() => "", []);
 
   useEffect(() => {
     fetch(`${apiBase}/meta`).then(async (r) => {
-      if (r.ok) setMeta(await r.json());
+      if (r.ok) {
+        const m = await r.json();
+        setMeta(m);
+        const mapping = m?.feature_label_to_int?.Class_Label;
+        if (mapping && typeof mapping === "object") {
+          const opts = Object.keys(mapping);
+          setClassOptions(opts);
+          setValues((v) => ({ ...v, Class_Label: v.Class_Label || opts[0] || "" }));
+        }
+      }
     }).catch(() => {});
   }, [apiBase]);
 
@@ -102,8 +112,21 @@ function Dashboard() {
     setError("");
     setPrediction(null);
     try {
+      const numericFields = [
+        "GC_Content",
+        "AT_Content",
+        "Num_A",
+        "Num_T",
+        "Num_C",
+        "Num_G",
+        "kmer_3_freq",
+        "Mutation_Flag",
+      ];
       const payload = Object.fromEntries(
-        Object.entries(values).map(([k, v]) => [k, v === "" ? null : Number(v)])
+        Object.entries(values).map(([k, v]) => {
+          if (v === "") return [k, null];
+          return [k, numericFields.includes(k) ? Number(v) : v];
+        })
       );
       const res = await fetch(`${apiBase}/predict`, {
         method: "POST",
@@ -153,7 +176,26 @@ function Dashboard() {
               <FieldDark icon="looks_4" label="Num_G" name="Num_G" value={values.Num_G} onChange={onChange} step="1" placeholder="e.g., 115" />
               <FieldDark icon="grain" label="kmer_3_freq" name="kmer_3_freq" value={values.kmer_3_freq} onChange={onChange} step="0.0001" placeholder="e.g., 0.0123" />
               <FieldDark icon="flag" label="Mutation_Flag (0/1)" name="Mutation_Flag" value={values.Mutation_Flag} onChange={onChange} step="1" min="0" max="1" placeholder="0 or 1" />
-              <FieldDark icon="category" label="Class_Label (0/1/2)" name="Class_Label" value={values.Class_Label} onChange={onChange} step="1" min="0" max="2" placeholder="0, 1, or 2" />
+              <div className="flex flex-col">
+                <span className="font-medium text-gray-300 mb-2 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-base">category</span>
+                  Class_Label
+                </span>
+                <select
+                  name="Class_Label"
+                  value={values.Class_Label}
+                  onChange={onChange}
+                  className="form-select flex w-full min-w-0 flex-1 rounded-lg text-white bg-[#111318] border border-gray-700 focus:ring-2 focus:ring-[var(--primary-color)] focus:border-[var(--primary-color)] p-3 text-base font-normal leading-relaxed transition-all duration-300"
+                >
+                  {classOptions.length === 0 ? (
+                    <option value="" disabled>Loading options...</option>
+                  ) : (
+                    classOptions.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))
+                  )}
+                </select>
+              </div>
 
               <div className="sm:col-span-2 lg:col-span-3 flex justify-center gap-3">
                 <button type="submit" disabled={loading} className="flex w-full sm:w-auto items-center justify-center overflow-hidden rounded-lg h-12 px-8 bg-[var(--primary-color)] text-white text-base font-bold tracking-wide hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-color)] focus:ring-offset-[#1c1f27] transition-all duration-300 transform hover:scale-105">
@@ -195,7 +237,7 @@ function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                <div className="text-2xl font-semibold text-white">Diabetes Risk: {prediction.prediction}</div>
+                <div className="text-2xl font-semibold text-white">Disease Risk: {prediction.prediction}</div>
                 {prediction.classes && (
                   <div>
                     <div className="text-sm text-slate-400 mb-1">Risk Categories</div>
